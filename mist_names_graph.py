@@ -23,6 +23,8 @@ from bokeh.models import (BoxZoomTool,HoverTool,WheelZoomTool,PanTool,
                           NodesAndLinkedEdges)
 from bokeh.palettes import Spectral8
 from bokeh.models.graphs import from_networkx
+from bokeh.embed import file_html
+from bokeh.resources import CDN
 import pandas as pd
 
 
@@ -50,7 +52,7 @@ class Graph:
                     L.append(int(row[col]))
                 col += 1
             col = np.arange(len(df.columns))[df.columns=='Friend1Closeness'][0]
-            while (df.columns[col] != 'Study1Name'):
+            while (df.columns[col] != 'Study1id'):
                 if not np.isnan(row[col]):
                     C.append(int(row[col]))
                 col += 1
@@ -108,14 +110,14 @@ class Graph:
         return {'xs':xs, 'ys':ys, 'xe':xe, 'ye':ye}
     
 G = Graph()
-G.linkNodes('FINAL DEIDENTIFIED FOR NY T1 STUDY 2.csv')
+G.linkNodes('Names_id_friends.csv')
 prop = G.CreateGraph()
 source = ColumnDataSource(data = G.get_Nodes_inSpace(prop))
 arrowSource = ColumnDataSource(G.get_Edges_inSpace(prop))
 
 hovertool = HoverTool(tooltips=[('index','@index'), ('friends', '@friends'), ('avgCloseness', '@avgCloseness')])
 f1 = figure(tools=[hovertool, WheelZoomTool(), ResetTool(), PanTool(), TapTool()], plot_width=1000,plot_height=900,
-        title="Test Figure")
+        title="NY MIST Network Graph")
 
 #f1.add_tools(hovertool, WheelZoomTool(), ResetTool(), PanTool())
 # f1.add_layout(Arrow(end=VeeHead(size=15), x_start='xs', y_start='ys', x_end='xe', y_end='ye', source=arrowSource, line_alpha=0.4))
@@ -144,6 +146,11 @@ f1.renderers.append(graph_renderer)
 
 p = ROW([f1])
 curdoc().add_root(p)
+
+html = file_html(f1, CDN, "NY MIST Network Graph")
+html_file = open("default.html", "w")
+html_file.write(html)
+html_file.close()
 
 #p = ROW([COLUMN([tabs, left, Parms]), Middle, blanktext]+rowcols)
 
