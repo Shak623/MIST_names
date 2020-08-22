@@ -9,3 +9,5 @@
  and if you click on a person it will highlight them and their friends.
  
  The networking graph is created using bokeh in python.
+ 
+ The graph can be acessed at shakeelfarooq.com
