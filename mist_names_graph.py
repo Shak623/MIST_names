@@ -111,24 +111,31 @@ class Graph:
     
 G = Graph()
 G.linkNodes('Names_id_friends.csv')
-prop = G.CreateGraph()
-source = ColumnDataSource(data = G.get_Nodes_inSpace(prop))
-arrowSource = ColumnDataSource(G.get_Edges_inSpace(prop))
+#prop = G.CreateGraph()
+#source = ColumnDataSource(data = G.get_Nodes_inSpace(prop))
+#arrowSource = ColumnDataSource(G.get_Edges_inSpace(prop))
 
 hovertool = HoverTool(tooltips=[('index','@index'), ('friends', '@friends'), ('avgCloseness', '@avgCloseness')])
 f1 = figure(tools=[hovertool, WheelZoomTool(), ResetTool(), PanTool(), TapTool()], plot_width=1000,plot_height=900,
         title="NY MIST Network Graph")
 
 #f1.add_tools(hovertool, WheelZoomTool(), ResetTool(), PanTool())
-# f1.add_layout(Arrow(end=VeeHead(size=15), x_start='xs', y_start='ys', x_end='xe', y_end='ye', source=arrowSource, line_alpha=0.4))
-nodes = f1.circle('x', 'y', alpha=0.7, source=source, line_color=None, size=20, visible=False)
+#f1.add_layout(Arrow(end=VeeHead(size=15), x_start='xs', y_start='ys', x_end='xe', y_end='ye', source=arrowSource, line_alpha=0.4))
+#nodes = f1.circle('x', 'y', alpha=0.7, source=source, line_color=None, size=20, visible=False)
 
 Gnx = G.CreateGraph(True)
+prop = nx.spring_layout(Gnx)
+source = ColumnDataSource(data = G.get_Nodes_inSpace(prop))
+nodes = f1.circle('x', 'y', alpha=0.7, source=source, line_color=None, size=20, visible=False)
 friendsD = {source.data['index'][i]: source.data['friends'][i] for i in range(len(source.data['index']))}
 avgCloseD = {source.data['index'][i]: source.data['avgCloseness'][i] for i in range(len(source.data['index']))}
 nx.set_node_attributes(Gnx, friendsD, 'friends')
 nx.set_node_attributes(Gnx, avgCloseD, 'avgCloseness')
-graph_renderer = from_networkx(Gnx, nx.spring_layout, scale=1, center=(0,0))
+
+graph_renderer = from_networkx(Gnx, prop, scale=1, center=(0,0))
+
+arrowSource = ColumnDataSource(G.get_Edges_inSpace(prop))
+f1.add_layout(Arrow(end=VeeHead(size=15, fill_alpha=0.4), x_start='xs', y_start='ys', x_end='xe', y_end='ye', source=arrowSource, line_alpha=0.4))
 
 graph_renderer.node_renderer.glyph = Circle(size=20, fill_alpha=0.7, fill_color=Spectral8[0])
 graph_renderer.node_renderer.selection_glyph = Circle(size=20, fill_color=Spectral8[5])
@@ -137,6 +144,8 @@ graph_renderer.node_renderer.hover_glyph = Circle(size=20, fill_alpha=0.7, fill_
 graph_renderer.edge_renderer.glyph = MultiLine(line_alpha=0.4, line_width=0.5)
 graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color=Spectral8[5], line_width=5)
 graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color=Spectral8[1], line_width=4)
+
+
 
 graph_renderer.selection_policy = NodesAndLinkedEdges()
 #graph_renderer.selection_policy = EdgesAndLinkedNodes()
