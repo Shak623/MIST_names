@@ -80,7 +80,7 @@ d3.csv("Names_id_friends.csv", function(error, links) {
         source: d.source,
         target: d.target
     };
-    linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
+    linkedByIndex[`${d.source.name},${d.target.name}`] = 1;
   });
 
   // Extract the array of nodes from the map by name.
@@ -90,7 +90,27 @@ d3.csv("Names_id_friends.csv", function(error, links) {
   var link = svg.selectAll(".link")
       .data(rels)
     .enter().append("line")
-      .attr("class", "link");
+      .attr("class", "link")
+      .on('mouseover.tooltip', function(d) {
+      	tooltip.transition()
+        	.duration(300)
+        	.style("opacity", .8);
+      	tooltip.html("Source:"+ d.source.name + 
+                     "<p/>Target:" + d.target.name)
+        	.style("left", (d3.event.pageX) + "px")
+        	.style("top", (d3.event.pageY + 10) + "px");
+    	})
+    	.on("mouseout.tooltip", function() {
+	      tooltip.transition()
+	        .duration(100)
+	        .style("opacity", 0);
+	    })
+  		.on('mouseout.fade', fade(1))
+	    .on("mousemove", function() {
+	      tooltip.style("left", (d3.event.pageX) + "px")
+	        .style("top", (d3.event.pageY + 10) + "px");
+      });
+      ;
 
   // Create the node circles.
   var node = svg.selectAll(".node")
@@ -148,7 +168,7 @@ d3.csv("Names_id_friends.csv", function(error, links) {
   }
 
   function isConnected(a, b) {
-    return linkedByIndex[`${a.index},${b.index}`] || linkedByIndex[`${b.index},${a.index}`] || a.index === b.index;
+    return linkedByIndex[`${a.name},${b.name}`] || linkedByIndex[`${b.name},${a.name}`] || a.name === b.name;
   }
 
   function fade(opacity) {
