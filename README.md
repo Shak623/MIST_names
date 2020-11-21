@@ -8,6 +8,7 @@
  If you hover over a node it will show the attributes of a person
  and if you click on a person it will highlight them and their friends.
  
- The networking graph is created using bokeh in python.
+ The networking graph was orginally designed using the Bokeh library in python,
+ but I switched over to d3.js because it looks nicer.
  
  The graph can be acessed at shakeelfarooq.com
